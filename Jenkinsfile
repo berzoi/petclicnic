@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_USERNAME = credentials('dockerhub-username')
-        DOCKER_HUB_PASSWORD = credentials('dockerhub-password')
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials') // Assuming a single credential for both username and password
+
         DOCKER_HUB_REPOSITORY_NAME = 'petclinic'
     }
 
@@ -29,18 +29,18 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def buildNumber = env.BUILD_NUMBER
-                    def dockerImageName = "${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY_NAME}:${buildNumber}"
-                    sh "docker build -t ${dockerImageName} ."
+                    def version = "1.0.${env.BUILD_NUMBER}" // Example versioning
+                    def dockerImageName = "${DOCKER_HUB_CREDENTIALS_USR}/${DOCKER_HUB_REPOSITORY_NAME}:${version}"
+                    sh "docker build -t ${dockerImageName} ."."
                 }
             }
         }
 
-        stage('Push Docker Image') {
+stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-username', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                     sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"'
-                    sh "docker push ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY_NAME}:${env.BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_HUB_CREDENTIALS_USR}/${DOCKER_HUB_REPOSITORY_NAME}:${version}"
                 }
             }
         }
