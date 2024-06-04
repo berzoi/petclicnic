@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DOCKER_HUB_USERNAME = credentials('dockerhub-username')
-        DOCKER_HUB_PASSWORD = credentials('dockerhub-password')
         DOCKER_HUB_REPOSITORY_NAME = 'petclinic'
     }
 
