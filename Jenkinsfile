@@ -12,7 +12,7 @@ pipeline {
 
     stages {
 
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-username', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')])
+        withCredentials([usernamePassword(credentialsId: 'docker-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')])
         
         stage('Compile') {
             steps {
