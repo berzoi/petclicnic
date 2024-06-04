@@ -1,4 +1,6 @@
 pipeline {
+
+// some comment
     agent any
 
     environment{
