@@ -1,12 +1,10 @@
 pipeline {
     agent any
 
-    environment {
+    environment{
         DOCKER_HUB_USERNAME = 'berzoi'
         DOCKER_HUB_REPOSITORY_NAME = 'petclinic'
     }
-
-
     
     tools{
         jdk 'jdk8'
