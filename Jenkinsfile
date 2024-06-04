@@ -34,11 +34,9 @@ pipeline {
             steps {
 
                 withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
-                    script {
                     def buildNumber = env.BUILD_NUMBER
                     def dockerImageName = "${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY_NAME}:${buildNumber}"
                     sh "docker build -t ${dockerImageName} ."
-                   }
                 }
             }
         }
