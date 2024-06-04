@@ -1,40 +1,46 @@
 pipeline {
     agent any
-    tools{
-        jdk 'jdk8'
-        maven 'maven3'
+
+    environment {
+        DOCKER_HUB_USERNAME = credentials('dockerhub-username')
+        DOCKER_HUB_PASSWORD = credentials('dockerhub-password')
+        DOCKER_HUB_REPOSITORY_NAME = 'petclinic'
     }
 
-    stages{
-        stage("Compile"){
-            steps{
-                sh "mvn clean compile"
+    stages {
+        stage('Compile') {
+            steps {
+                sh 'mvn clean compile'
             }
         }
 
-         stage("Test Cases"){
-            steps{
-                sh "mvn test"
+        stage('Test') {
+            steps {
+                sh 'mvn test'
             }
         }
 
-         stage("Build"){
-            steps{
-                sh "mvn clean install"
+        stage('Build Project') {
+            steps {
+                sh 'mvn clean install'
             }
         }
-        stage("Build docker image"){
-            steps{
-                sh "docker build -t berzoi/petclinic:$env.BUILD_NUMBER ."
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def buildNumber = env.BUILD_NUMBER
+                    def dockerImageName = "${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY_NAME}:${buildNumber}"
+                    sh "docker build -t ${dockerImageName} ."
+                }
             }
         }
-        stage("Publish docker image"){
-            steps{
-                script{
-                    withCredentials([usernamePassword(credentialsId: "docker-credentials", usernameVariable: "DOCKER_REPOSITORY_USER", passwordVariable: "DOCKER_REPOSITORY_PASSWORD")]){
-                        sh "docker login -u $DOCKER_REPOSITORY_USER -p $DOCKER_REPOSITORY_PASSWORD"
-                        sh "docker push nchisacov/petclinic:$env.BUILD_NUMBER"
-                    }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-username', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                    sh 'docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"'
+                    sh "docker push ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY_NAME}:${env.BUILD_NUMBER}"
                 }
             }
         }
